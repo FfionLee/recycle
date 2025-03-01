@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 pygame.init()
 screen=pygame.display.set_mode((1200,900))
@@ -10,7 +11,14 @@ r3=pygame.transform.scale(pygame.image.load('assets/woodenbox.png'),(50,50))
 
 r=[r1,r2,r3]
 
+clock=pygame.time.Clock()
+
 background=pygame.image.load('assets/background.png')
+
+starttime=time.time()
+score=0
+items=0
+baditems=0
 
 playing=True
 
@@ -51,7 +59,11 @@ BinGroup=pygame.sprite.Group()
 bin=Player()
 BinGroup.add(bin)
 
+font=pygame.font.SysFont('Times New Roman',50)
+
 while playing:
+    timedifference=time.time()-starttime
+    
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             playing=False
@@ -74,5 +86,24 @@ while playing:
             bin.rect.x+=5
     
     itemcollide=pygame.sprite.spritecollide(bin,RecycleGroup,True)
-    print(itemcollide)
+    stext=font.render('Score: '+str(score),True,'black')
+    screen.blit(stext,(1000,10))
+    for i in itemcollide:
+        score=score+1
+        items=items+1
+
+    badcollide=pygame.sprite.spritecollide(bin,NoRecycleGroup,True)
+    for b in badcollide:
+        score=score-1
+        baditems=baditems+1
+
+    if timedifference>10:
+        print('gameover')
+        screen.fill('black')
+        end=font.render('Your final score is '+str(score),True,'white')
+        screen.blit(end,(400,400))
+        good=font.render(str(items)+' Recyclable items collected',True,'green')
+        screen.blit(good,(300,600))
+        bad=font.render(str(baditems)+' Non-recyclable items collected',True,'red')
+        screen.blit(bad,(300,800))
     pygame.display.update()
